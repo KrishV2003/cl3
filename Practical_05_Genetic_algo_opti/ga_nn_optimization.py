@@ -1,48 +1,137 @@
 import random
+import pandas as pd
+import numpy as np
+import warnings
+
+warnings.filterwarnings("ignore")
+
 from deap import base, creator, tools, algorithms
 
+from sklearn.model_selection import train_test_split
 
-# Evaluation Function
+from sklearn.neural_network import MLPRegressor
+
+from sklearn.metrics import mean_squared_error
+
+from sklearn.preprocessing import StandardScaler
+
+
+# ==============================
+# LOAD COCONUT MILK DATASET
+# ==============================
+
+data = pd.read_csv("coconut_milk.csv")
+
+# Remove extra spaces if present
+data.columns = data.columns.str.strip()
+
+# ==============================
+# INPUT FEATURES
+# ==============================
+
+X = data.drop(
+    "Moisture_Content_percent",
+    axis=1
+)
+
+# TARGET OUTPUT
+y = data["Moisture_Content_percent"]
+
+
+# ==============================
+# FEATURE SCALING
+# ==============================
+
+scaler = StandardScaler()
+
+X = scaler.fit_transform(X)
+
+
+# ==============================
+# TRAIN TEST SPLIT
+# ==============================
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X,
+    y,
+    test_size=0.2,
+    random_state=42
+)
+
+
+# ==============================
+# FITNESS FUNCTION
+# ==============================
+
 def evaluate(individual):
 
-    # individual[0] -> neurons
-    # individual[1] -> layers
-
     neurons = individual[0]
+
     layers = individual[1]
 
-    # Simulated fitness function
-    # Random value used for demonstration
+    # Create hidden layer structure
+    hidden_layers = tuple(
+        [neurons] * layers
+    )
 
-    fitness = random.random()
+    try:
 
-    return (fitness,)
+        # Neural Network Model
+        model = MLPRegressor(
+            hidden_layer_sizes=hidden_layers,
+            max_iter=500,
+            random_state=42
+        )
+
+        # Train Model
+        model.fit(X_train, y_train)
+
+        # Prediction
+        predictions = model.predict(X_test)
+
+        # Mean Squared Error
+        mse = mean_squared_error(
+            y_test,
+            predictions
+        )
+
+        return (mse,)
+
+    except:
+
+        return (9999,)
 
 
-# Genetic Algorithm Parameters
-POPULATION_SIZE = 10
+# ==============================
+# CREATE FITNESS CLASS
+# ==============================
 
-GENERATIONS = 5
-
-
-# Create Fitness Type
 creator.create(
     "FitnessMin",
     base.Fitness,
     weights=(-1.0,)
 )
 
-# Create Individual Type
+
+# ==============================
+# CREATE INDIVIDUAL
+# ==============================
+
 creator.create(
     "Individual",
     list,
     fitness=creator.FitnessMin
 )
 
-# Toolbox
+
+# ==============================
+# TOOLBOX
+# ==============================
+
 toolbox = base.Toolbox()
 
-# Attributes
+
+# Number of neurons
 toolbox.register(
     "attr_neurons",
     random.randint,
@@ -50,14 +139,19 @@ toolbox.register(
     100
 )
 
+# Number of hidden layers
 toolbox.register(
     "attr_layers",
     random.randint,
     1,
-    5
+    3
 )
 
-# Create Individual
+
+# ==============================
+# CREATE INDIVIDUAL
+# ==============================
+
 toolbox.register(
     "individual",
     tools.initCycle,
@@ -69,7 +163,11 @@ toolbox.register(
     n=1
 )
 
-# Create Population
+
+# ==============================
+# CREATE POPULATION
+# ==============================
+
 toolbox.register(
     "population",
     tools.initRepeat,
@@ -77,7 +175,11 @@ toolbox.register(
     toolbox.individual
 )
 
-# Genetic Operators
+
+# ==============================
+# GENETIC OPERATORS
+# ==============================
+
 toolbox.register(
     "evaluate",
     evaluate
@@ -100,15 +202,30 @@ toolbox.register(
     tournsize=3
 )
 
-# Create Population
-population = toolbox.population(
-    n=POPULATION_SIZE
-)
 
-# Run Generations
+# ==============================
+# CREATE POPULATION
+# ==============================
+
+population = toolbox.population(n=10)
+
+
+# ==============================
+# NUMBER OF GENERATIONS
+# ==============================
+
+GENERATIONS = 5
+
+
+# ==============================
+# RUN GENETIC ALGORITHM
+# ==============================
+
 for gen in range(GENERATIONS):
 
-    # Create offspring
+    print(f"\nGeneration {gen + 1}")
+
+    # Crossover and Mutation
     offspring = algorithms.varAnd(
         population,
         toolbox,
@@ -126,17 +243,44 @@ for gen in range(GENERATIONS):
 
         ind.fitness.values = fit
 
-    # Select next generation
+    # Selection
     population = toolbox.select(
         offspring,
         k=len(population)
     )
 
-# Best Individual
+
+# ==============================
+# BEST SOLUTION
+# ==============================
+
 best_individual = tools.selBest(
     population,
     k=1
 )[0]
 
-# Display Result
-print("Best Parameters :", best_individual)
+
+# ==============================
+# FINAL OUTPUT
+# ==============================
+
+print("\n========================================")
+print(" HYBRID GA-NN OPTIMIZATION RESULTS ")
+print("========================================")
+
+print(
+    "\nBest Number of Neurons :",
+    best_individual[0]
+)
+
+print(
+    "Best Number of Hidden Layers :",
+    best_individual[1]
+)
+
+print(
+    "Best Fitness (MSE) :",
+    best_individual.fitness.values[0]
+)
+
+print("\nOptimization Completed Successfully.")
