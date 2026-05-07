@@ -1,0 +1,159 @@
+Windows:
+
+1) Create folder named practical_8_java_RMI
+2) javac practical_8_java_RMI\*.java
+3) java practical_8_java_RMI.HotelServer
+4) java practical_8_java_RMI.HotelClient
+
+--------------------------------------------------
+Ubuntu:
+STEP 3 — Create Project Folder
+mkdir ~/RMIHotel
+
+Go inside:
+
+cd ~/RMIHotel
+STEP 4 — Create Package Folder
+
+IMPORTANT.
+
+Create:
+
+mkdir practical_8_java_RMI
+
+Go inside:
+
+cd practical_8_java_RMI
+STEP 5 — Create Java Files
+
+Create:
+
+HotelServiceInterface.java
+HotelServer.java
+HotelClient.java
+STEP 6 — Create Interface File
+nano HotelServiceInterface.java
+
+Paste interface code.
+
+Save:
+
+CTRL + O
+ENTER
+CTRL + X
+STEP 7 — Create Server File
+nano HotelServer.java
+
+Paste server code.
+
+Save and exit.
+
+STEP 8 — Create Client File
+nano HotelClient.java
+
+Paste client code.
+
+Save and exit.
+
+STEP 9 — Go Back to Main Folder
+
+IMPORTANT.
+
+You must be OUTSIDE package folder.
+
+Run:
+
+cd ..
+
+Now you should be inside:
+
+~/RMIHotel
+STEP 10 — Compile Java Files
+
+Run:
+
+javac practical_8_java_RMI/*.java
+
+If compilation successful:
+
+no errors shown
+STEP 11 — Check Class Files
+
+Run:
+
+ls practical_8_java_RMI
+
+You should see:
+
+HotelClient.class
+HotelServer.class
+HotelServiceInterface.class
+STEP 12 — Run Server
+
+IMPORTANT.
+
+Open terminal inside:
+
+~/RMIHotel
+
+Run:
+
+java practical_8_java_RMI.HotelServer
+
+Expected output:
+
+Hotel Server is running...
+
+DO NOT close this terminal.
+
+STEP 13 — Open SECOND TERMINAL
+
+VERY IMPORTANT.
+
+You need another terminal for client.
+
+STEP 14 — Go to Project Folder
+cd ~/RMIHotel
+STEP 15 — Run Client
+java practical_8_java_RMI.HotelClient
+
+NOW MENU APPEARS
+1. Book a room
+2. Cancel booking
+3. Show booked room details
+4. Exit
+---------------------------------------------------------------------------------------
+How to install Java on Windows and Ubuntu:
+   Windows: 
+   -- Open Official Java Website: https://www.oracle.com/java/technologies/downloads/
+   -- Choose Windows Version: x64 Installer (.exe) and jdk-21_windows-x64_bin.exe
+   -- Run the Installer
+   -- Verify Java Installation: Open: Command Prompt (cmd) and type java -version and javac -version
+
+   Ubuntu:
+   -- sudo apt update
+   -- sudo apt install openjdk-21-jdk
+   -- java -version
+   -- javac -version
+   -- which java
+   -- readlink -f $(which java)
+   -- Set JAVA_HOME:
+      -- nano ~/.bashrc
+      -- Add these lines at bottom:
+         export JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64
+         export PATH=$JAVA_HOME/bin:$PATH
+      -- Then enter CTRL + O then press Enter then Ctrl + X
+      -- source ~/.bashrc
+      -- echo $JAVA_HOME
+   -- Test Java Program on Ubuntu:
+      -- nano Hello.java
+      -- Code:
+         class Hello {
+              public static void main(String args[]) {
+                        System.out.println("Hello Java");
+              }
+        } 
+      -- Ctrl + O then Enter then Ctrl + X
+      -- javac Hello.java
+      -- java Hello
+

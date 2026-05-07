@@ -1,0 +1,61 @@
+Windows:
+1) Download Python from official website: https://www.python.org/downloads/
+2) Install Python and Tick: Add Python to PATH and click install
+3) Verify Python: Open CMD and then type and run python --version
+4) Install pip Libraries:
+   -- pip install numpy deap Pyro4
+   -- Verify Libraries: pip list
+
+Ubuntu:
+1) Open terminal:
+   -- sudo apt update
+   -- sudo apt upgrade -y
+2) Install Python:
+   -- sudo apt install python3 python3-pip -y
+3) Verify Python:
+   -- python3 --version
+4) Install Python Libraries:
+   -- pip3 install numpy deap Pyro4
+   -- If permission error: pip3 install --break-system-packages numpy deap Pyro4
+      OR python3 -m pip install numpy deap Pyro4
+5) Verify Libraries: pip3 list
+
+
+Run Python and Java program on Windows:
+-- Python:
+   -- Create Python File: hello.py
+   -- Write Python Code
+   -- Open CMD
+   -- Go to Program Folder
+      -- cd Desktop\PythonPrograms
+   -- python hello.py or py hello.py
+-- Java:
+   -- Create Java File: Hello.java
+   -- Write Java Code:
+      public class Hello {
+
+                 public static void main(String[] args) {
+
+                         System.out.println("Hello World");
+                 }
+      }
+   -- Open CMD
+   -- Go to Folder: cd Desktop\JavaPrograms
+   -- Compile Java Program: javac Hello.java
+   -- Run Java Program: java Hello
+
+Run Python and Java programs on Ubuntu:
+-- Python:
+   -- Create File: 
+      Open terminal: nano hello.py
+   -- Write Code: print("Hello World")
+   -- Save File: CTRL + O then ENTER then CTRL + X
+   -- Run Program: python3 hello.py
+-- Java:
+   -- Open Terminal
+   -- Create Java File: nano Hello.java
+   -- Write Java Code
+   -- Save File: CTRL + O then ENTER then CTRL + X
+   -- Compile Java Program: javac Hello.java
+   -- Run Java Program: java Hello
+
