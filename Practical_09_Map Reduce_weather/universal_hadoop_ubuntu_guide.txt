@@ -1,0 +1,413 @@
+
+UNIVERSAL HADOOP + MAPREDUCE SETUP GUIDE FOR UBUNTU
+(Works for Ubuntu 20.04 / 22.04 / 24.04)
+
+========================================================
+PHASE 1 — CHECK UBUNTU VERSION
+========================================================
+
+Open Terminal:
+Ctrl + Alt + T
+
+Run:
+lsb_release -a
+
+Example Output:
+Ubuntu 22.04
+OR
+Ubuntu 24.04
+
+========================================================
+PHASE 2 — UPDATE UBUNTU
+========================================================
+
+sudo apt update
+
+========================================================
+PHASE 3 — INSTALL JAVA
+========================================================
+
+FOR UBUNTU 20.04 / 22.04:
+sudo apt install openjdk-8-jdk -y
+
+FOR UBUNTU 24.04:
+sudo apt install openjdk-11-jdk -y
+
+Verify Java:
+java -version
+
+========================================================
+PHASE 4 — CONFIGURE DEFAULT JAVA
+========================================================
+
+sudo update-alternatives --config java
+
+If multiple versions appear:
+- Type number for Java 8 or Java 11
+- Press Enter
+
+========================================================
+PHASE 5 — GO TO HOME DIRECTORY
+========================================================
+
+cd ~
+
+========================================================
+PHASE 6 — DOWNLOAD HADOOP
+========================================================
+
+wget https://downloads.apache.org/hadoop/common/hadoop-3.3.6/hadoop-3.3.6.tar.gz
+
+========================================================
+PHASE 7 — EXTRACT HADOOP
+========================================================
+
+tar -xvzf hadoop-3.3.6.tar.gz
+
+========================================================
+PHASE 8 — MOVE HADOOP
+========================================================
+
+sudo mv hadoop-3.3.6 /usr/local/hadoop
+
+========================================================
+PHASE 9 — FIND JAVA_HOME PATH
+========================================================
+
+Run:
+readlink -f $(which java)
+
+Example Output For Java 8:
+/usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java
+
+Example Output For Java 11:
+/usr/lib/jvm/java-11-openjdk-amd64/bin/java
+
+Remove /bin/java from the end.
+
+Final JAVA_HOME:
+
+FOR JAVA 8:
+/usr/lib/jvm/java-8-openjdk-amd64/jre
+
+FOR JAVA 11:
+/usr/lib/jvm/java-11-openjdk-amd64
+
+========================================================
+PHASE 10 — CONFIGURE ENVIRONMENT VARIABLES
+========================================================
+
+Open bashrc:
+gedit ~/.bashrc
+
+If gedit unavailable:
+nano ~/.bashrc
+
+--------------------------------------------------------
+FOR JAVA 8 ADD:
+--------------------------------------------------------
+
+export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/jre
+export HADOOP_HOME=/usr/local/hadoop
+export PATH=$PATH:$HADOOP_HOME/bin
+export PATH=$PATH:$HADOOP_HOME/sbin
+
+--------------------------------------------------------
+FOR JAVA 11 ADD:
+--------------------------------------------------------
+
+export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
+export HADOOP_HOME=/usr/local/hadoop
+export PATH=$PATH:$HADOOP_HOME/bin
+export PATH=$PATH:$HADOOP_HOME/sbin
+
+--------------------------------------------------------
+SAVE FILE
+--------------------------------------------------------
+
+IN NANO:
+CTRL + O
+ENTER
+CTRL + X
+
+Reload Bash:
+source ~/.bashrc
+
+========================================================
+PHASE 11 — CHECK HADOOP VERSION
+========================================================
+
+hadoop version
+
+========================================================
+PHASE 12 — CONFIGURE HADOOP
+========================================================
+
+cd /usr/local/hadoop/etc/hadoop
+
+--------------------------------------------------------
+EDIT core-site.xml
+--------------------------------------------------------
+
+sudo nano core-site.xml
+
+Add inside <configuration>:
+
+<property>
+    <name>fs.defaultFS</name>
+    <value>hdfs://localhost:9000</value>
+</property>
+
+Save and exit.
+
+--------------------------------------------------------
+EDIT hdfs-site.xml
+--------------------------------------------------------
+
+sudo nano hdfs-site.xml
+
+Add inside <configuration>:
+
+<property>
+    <name>dfs.replication</name>
+    <value>1</value>
+</property>
+
+Save and exit.
+
+========================================================
+PHASE 13 — FIX HADOOP JAVA_HOME
+========================================================
+
+Edit:
+sudo nano /usr/local/hadoop/etc/hadoop/hadoop-env.sh
+
+Search JAVA_HOME and set correct path.
+
+Also edit:
+sudo nano /usr/local/hadoop/etc/hadoop/hdfs-env.sh
+
+and:
+sudo nano /usr/local/hadoop/etc/hadoop/yarn-env.sh
+
+Add same JAVA_HOME.
+
+========================================================
+PHASE 14 — FORMAT NAMENODE
+========================================================
+
+hdfs namenode -format
+
+Expected:
+Storage directory formatted
+
+========================================================
+PHASE 15 — INSTALL SSH
+========================================================
+
+sudo apt install openssh-server -y
+
+========================================================
+PHASE 16 — START SSH
+========================================================
+
+sudo service ssh start
+
+Enable on boot:
+sudo systemctl enable ssh
+
+Check status:
+sudo systemctl status ssh
+
+========================================================
+PHASE 17 — TEST SSH
+========================================================
+
+ssh localhost
+
+Type:
+yes
+
+Then enter password.
+
+Exit:
+exit
+
+========================================================
+PHASE 18 — GENERATE SSH KEY
+========================================================
+
+ssh-keygen -t rsa -P ""
+
+Press Enter repeatedly.
+
+Copy SSH key:
+cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys
+
+Set permission:
+chmod 600 ~/.ssh/authorized_keys
+
+Test again:
+ssh localhost
+
+Should login without password.
+
+Exit:
+exit
+
+========================================================
+PHASE 19 — START HADOOP
+========================================================
+
+start-dfs.sh
+
+start-yarn.sh
+
+========================================================
+PHASE 20 — VERIFY USING JPS
+========================================================
+
+jps
+
+Expected Output:
+NameNode
+DataNode
+SecondaryNameNode
+ResourceManager
+NodeManager
+Jps
+
+========================================================
+PHASE 21 — CREATE PROJECT FOLDER
+========================================================
+
+mkdir ~/grade
+
+cd ~/grade
+
+========================================================
+PHASE 22 — CREATE JAVA FILES
+========================================================
+
+nano GradeMapper.java
+
+nano GradeReducer.java
+
+nano GradeDriver.java
+
+========================================================
+PHASE 23 — COMPILE JAVA FILES
+========================================================
+
+javac -classpath `hadoop classpath` -d . GradeMapper.java GradeReducer.java GradeDriver.java
+
+========================================================
+PHASE 24 — CREATE JAR FILE
+========================================================
+
+jar -cvf grade.jar *.class
+
+========================================================
+PHASE 25 — CREATE INPUT FILE
+========================================================
+
+nano students.txt
+
+Write:
+
+101,95
+102,82
+103,74
+104,66
+105,45
+
+Save and exit.
+
+========================================================
+PHASE 26 — UPLOAD FILE TO HDFS
+========================================================
+
+hdfs dfs -mkdir /gradeinput
+
+hdfs dfs -put students.txt /gradeinput
+
+hdfs dfs -ls /gradeinput
+
+========================================================
+PHASE 27 — RUN MAPREDUCE PROGRAM
+========================================================
+
+hadoop jar grade.jar GradeDriver /gradeinput /gradeoutput
+
+========================================================
+PHASE 28 — VIEW OUTPUT
+========================================================
+
+hdfs dfs -cat /gradeoutput/part-00000
+
+========================================================
+PHASE 29 — BEFORE RE-RUNNING
+========================================================
+
+Delete old output folder:
+
+hdfs dfs -rm -r /gradeoutput
+
+========================================================
+IMPORTANT FIXES
+========================================================
+
+IF NAMENODE DOES NOT APPEAR:
+
+STEP 1:
+stop-dfs.sh
+stop-yarn.sh
+
+STEP 2:
+readlink -f $(which java)
+
+STEP 3:
+sudo nano /usr/local/hadoop/etc/hadoop/hadoop-env.sh
+
+Set:
+export JAVA_HOME=YOUR_CORRECT_JAVA_PATH
+
+STEP 4:
+sudo nano /usr/local/hadoop/etc/hadoop/hdfs-env.sh
+
+sudo nano /usr/local/hadoop/etc/hadoop/yarn-env.sh
+
+Set same JAVA_HOME.
+
+STEP 5:
+source ~/.bashrc
+
+STEP 6:
+hdfs namenode -format
+
+STEP 7:
+start-dfs.sh
+start-yarn.sh
+
+STEP 8:
+jps
+
+Expected:
+NameNode
+DataNode
+SecondaryNameNode
+ResourceManager
+NodeManager
+Jps
+
+========================================================
+FINAL RECOMMENDATION
+========================================================
+
+Ubuntu 20.04 -> Java 8
+Ubuntu 22.04 -> Java 8
+Ubuntu 24.04 -> Java 11
+
+========================================================
+END OF GUIDE
+========================================================
